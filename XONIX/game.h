@@ -28,6 +28,8 @@ struct Player
 
 void GameDraw(Game& game, Player& player);
 
+void ProcessMove(Game& game, Player& player);
+
 void GameUpdate(Game& game, Player& player);
 
 void GameLoop(Game& game, Player& player);

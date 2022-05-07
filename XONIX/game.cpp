@@ -14,6 +14,14 @@ void GameDraw(Game& game, Player& player)
 	SDL_RenderPresent(ren);
 }
 
+void ProcessMove(Game& game, Player& player)
+{
+	if (game.moveStatus.up && !game.moveStatus.down)		player.y--;
+	if (!game.moveStatus.up && game.moveStatus.down)		player.y++;
+	if (game.moveStatus.right && !game.moveStatus.left)		player.x++;
+	if (!game.moveStatus.right && game.moveStatus.left)		player.x--;
+}
+
 void GameUpdate(Game& game,Player& player)
 {
 	while (SDL_PollEvent(&game.ev))
@@ -43,11 +51,8 @@ void GameUpdate(Game& game,Player& player)
 			}
 			break;
 		}
-		if (game.moveStatus.up && !game.moveStatus.down)		player.y -= 5;
-		if (!game.moveStatus.up && game.moveStatus.down)		player.y += 5;
-		if (game.moveStatus.right && !game.moveStatus.left)		player.x += 5;
-		if (!game.moveStatus.right && game.moveStatus.left)		player.x -= 5;
 	}
+		ProcessMove(game, player);
 }
 
 void GameLoop(Game& game, Player& player)
