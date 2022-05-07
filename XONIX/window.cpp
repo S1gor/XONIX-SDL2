@@ -3,8 +3,8 @@
 SDL_Window* win = NULL;
 SDL_Renderer* ren = NULL;
 
-int win_width = 1300;
-int win_height = 750;
+int win_width = 1240;
+int win_height = 700;
 int records_offset = 100;
 
 void DeInit(int error)

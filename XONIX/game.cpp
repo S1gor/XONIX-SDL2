@@ -3,19 +3,21 @@
 int block_width = 20;
 int point_per_block = 5;
 
-void GameDraw(Game& game)
+void GameDraw(Game& game, Player& player)
 {
 	SDL_SetRenderDrawColor(ren, 0, 225, 225, 225);
 	SDL_RenderClear(ren);
+
+	SDL_Rect r = { player.x,player.y,17,17 };
+	SDL_SetRenderDrawColor(ren, 255, 0, 0, 255);
+	SDL_RenderDrawRect(ren, &r);
 	SDL_RenderPresent(ren);
 }
 
-void GameUpdate(Game& game)
+void GameUpdate(Game& game,Player& player)
 {
 	while (SDL_PollEvent(&game.ev))
 	{
-		int mouse_x = 0; int mouse_y = 0;
-		
 		switch (game.ev.type)
 		{
 		case SDL_QUIT:
@@ -30,6 +32,7 @@ void GameUpdate(Game& game)
 			case SDL_SCANCODE_RIGHT:	game.moveStatus.right= true;	break;
 			case SDL_SCANCODE_LEFT:		game.moveStatus.left= true;		break;
 			}
+			break;
 		case SDL_KEYUP:
 			switch (game.ev.key.keysym.scancode)
 			{
@@ -38,26 +41,21 @@ void GameUpdate(Game& game)
 			case SDL_SCANCODE_RIGHT:	game.moveStatus.right = false;	break;
 			case SDL_SCANCODE_LEFT:		game.moveStatus.left = false;	break;
 			}
+			break;
 		}
-		if (game.moveStatus.up && !game.moveStatus.down)		mouse_y--;
-		if (!game.moveStatus.up && game.moveStatus.down)		mouse_y++;
-		if (game.moveStatus.right && !game.moveStatus.left)		mouse_x++;
-		if (!game.moveStatus.right && game.moveStatus.left)		mouse_x--;
-
-
-		/*SDL_Rect r = { mouse_x,mouse_y,15,15 };								
-		SDL_SetRenderDrawColor(ren, 255, 0, 0, 255);
-		SDL_RenderDrawRect(ren, &r);
-		SDL_RenderPresent(ren);*/
+		if (game.moveStatus.up && !game.moveStatus.down)		player.y -= 5;
+		if (!game.moveStatus.up && game.moveStatus.down)		player.y += 5;
+		if (game.moveStatus.right && !game.moveStatus.left)		player.x += 5;
+		if (!game.moveStatus.right && game.moveStatus.left)		player.x -= 5;
 	}
 }
 
-void GameLoop(Game& game)
+void GameLoop(Game& game, Player& player)
 {
 	while (game.run)
 	{
-		GameUpdate(game);
-		GameDraw(game);
+		GameUpdate(game, player);
+		GameDraw(game, player);
 	}
 }
 
@@ -66,7 +64,7 @@ void GameLoop(Game& game)
 
 
 
-void InitMap(Map& map)
+/*void InitMap(Map& map)
 {
 	map.cols = (win_height - records_offset) / block_width;
 	map.rows = win_width / block_width;
@@ -104,4 +102,4 @@ void RenderMap(SDL_Renderer* ren, Map& map)
 		}
 		SDL_RenderFillRect(ren, &rect);
 	}
-}
+}*/

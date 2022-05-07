@@ -20,11 +20,17 @@ struct Game
 	MoveStatus moveStatus;
 };
 
-void GameDraw(Game& game);
+struct Player
+{
+	int x = win_width / 2;
+	int y = win_height / 2;
+};
 
-void GameUpdate(Game& game);
+void GameDraw(Game& game, Player& player);
 
-void GameLoop(Game& game);
+void GameUpdate(Game& game, Player& player);
+
+void GameLoop(Game& game, Player& player);
 
 
 struct TypeBlock
