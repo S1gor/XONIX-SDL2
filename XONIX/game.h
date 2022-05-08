@@ -17,18 +17,26 @@ struct Game
 {
 	bool run = true;
 	SDL_Event ev;
-	MoveStatus moveStatus;
 };
 
 struct Player
 {
+	/*SDL_Surface* surface;
+	SDL_Texture* texture;
+	SDL_Rect img_rect;
+	SDL_Rect dst_rect;*/
+	SDL_Rect rect;
 	int x = win_width / 2;
 	int y = win_height / 2;
+	int size = 17;
+	MoveStatus moveStatus;
 };
+
+void InitPlayer(Player& player);
 
 void GameDraw(Game& game, Player& player);
 
-void ProcessMove(Game& game, Player& player);
+void ProcessMove(Player& player);
 
 void GameUpdate(Game& game, Player& player);
 

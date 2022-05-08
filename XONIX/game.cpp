@@ -3,23 +3,37 @@
 int block_width = 20;
 int point_per_block = 5;
 
+void InitPlayer(Player& player)
+{
+	SDL_SetRenderDrawColor(ren, 0, 0, 0, 225);
+	player.rect = { player.x,player.y,player.size,player.size };
+	SDL_RenderDrawRect(ren, &player.rect);
+
+	/*player.surface = IMG_Load("player.jpg");
+	player.texture = SDL_CreateTextureFromSurface(ren, player.surface);
+	player.img_rect = { 0,0,player.surface->w,player.surface->h };
+	SDL_FreeSurface(player.surface);
+	player.dst_rect = { player.x,player.y,player.img_rect.w / 19,player.img_rect.h / 19 };
+
+	SDL_RenderCopy(ren, player.texture, NULL, &player.dst_rect);*/
+}
+
 void GameDraw(Game& game, Player& player)
 {
 	SDL_SetRenderDrawColor(ren, 0, 225, 225, 225);
 	SDL_RenderClear(ren);
 
-	SDL_Rect r = { player.x,player.y,17,17 };
-	SDL_SetRenderDrawColor(ren, 255, 0, 0, 255);
-	SDL_RenderDrawRect(ren, &r);
+	InitPlayer(player);
+
 	SDL_RenderPresent(ren);
 }
 
-void ProcessMove(Game& game, Player& player)
+void ProcessMove(Player& player)
 {
-	if (game.moveStatus.up && !game.moveStatus.down)		player.y--;
-	if (!game.moveStatus.up && game.moveStatus.down)		player.y++;
-	if (game.moveStatus.right && !game.moveStatus.left)		player.x++;
-	if (!game.moveStatus.right && game.moveStatus.left)		player.x--;
+	if (player.moveStatus.up && !player.moveStatus.down && player.y != 0)								player.y--;
+	if (!player.moveStatus.up && player.moveStatus.down && player.y != win_height - player.size)		player.y++;
+	if (player.moveStatus.right && !player.moveStatus.left && player.x != win_width - player.size)		player.x++;
+	if (!player.moveStatus.right && player.moveStatus.left && player.x != 0)							player.x--;
 }
 
 void GameUpdate(Game& game,Player& player)
@@ -34,25 +48,25 @@ void GameUpdate(Game& game,Player& player)
 		case SDL_KEYDOWN:
 			switch (game.ev.key.keysym.scancode)
 			{
-			case SDL_SCANCODE_ESCAPE:	game.run = false;				break;
-			case SDL_SCANCODE_UP:		game.moveStatus.up = true;		break;
-			case SDL_SCANCODE_DOWN:		game.moveStatus.down = true;	break;
-			case SDL_SCANCODE_RIGHT:	game.moveStatus.right= true;	break;
-			case SDL_SCANCODE_LEFT:		game.moveStatus.left= true;		break;
+			case SDL_SCANCODE_ESCAPE:	game.run = false;					break;
+			case SDL_SCANCODE_UP:		player.moveStatus.up = true;		break;
+			case SDL_SCANCODE_DOWN:		player.moveStatus.down = true;		break;
+			case SDL_SCANCODE_RIGHT:	player.moveStatus.right = true;		break;
+			case SDL_SCANCODE_LEFT:		player.moveStatus.left = true;		break;
 			}
 			break;
 		case SDL_KEYUP:
 			switch (game.ev.key.keysym.scancode)
 			{
-			case SDL_SCANCODE_UP:		game.moveStatus.up = false;		break;
-			case SDL_SCANCODE_DOWN:		game.moveStatus.down = false;	break;
-			case SDL_SCANCODE_RIGHT:	game.moveStatus.right = false;	break;
-			case SDL_SCANCODE_LEFT:		game.moveStatus.left = false;	break;
+			case SDL_SCANCODE_UP:		player.moveStatus.up = false;		break;
+			case SDL_SCANCODE_DOWN:		player.moveStatus.down = false;		break;
+			case SDL_SCANCODE_RIGHT:	player.moveStatus.right = false;	break;
+			case SDL_SCANCODE_LEFT:		player.moveStatus.left = false;		break;
 			}
 			break;
 		}
 	}
-		ProcessMove(game, player);
+	ProcessMove(player);
 }
 
 void GameLoop(Game& game, Player& player)
