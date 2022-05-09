@@ -6,8 +6,9 @@ int main(int argc, char* argv[])
 
 	Game game;
 	Player player;
+	Enemies enemies;
 
-	GameLoop(game, player);
+	GameLoop(game, player, enemies);
 
 	DeInit(0);
 	return 0;

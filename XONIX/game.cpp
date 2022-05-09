@@ -5,7 +5,7 @@ int point_per_block = 5;
 
 void InitPlayer(Player& player)
 {
-	SDL_SetRenderDrawColor(ren, 0, 0, 0, 225);
+	SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
 	player.rect = { player.x,player.y,player.size,player.size };
 	SDL_RenderDrawRect(ren, &player.rect);
 
@@ -18,25 +18,38 @@ void InitPlayer(Player& player)
 	SDL_RenderCopy(ren, player.texture, NULL, &player.dst_rect);*/
 }
 
-void GameDraw(Game& game, Player& player)
+void InitEnemies(Enemies& enemies)
 {
-	SDL_SetRenderDrawColor(ren, 0, 225, 225, 225);
+	SDL_SetRenderDrawColor(ren, 255, 0, 0, 255);
+	enemies.rect = { enemies.x,enemies.y,enemies.size,enemies.size };
+	SDL_RenderDrawRect(ren, &enemies.rect);
+}
+
+void GameDraw(Game& game, Player& player, Enemies& enemies)
+{
+	SDL_SetRenderDrawColor(ren, 0, 225, 225, 255);
 	SDL_RenderClear(ren);
 
 	InitPlayer(player);
+	InitEnemies(enemies);
 
 	SDL_RenderPresent(ren);
 }
 
-void ProcessMove(Player& player)
+void ProcessMove(Player& player, Enemies& enemies)
 {
-	if (player.moveStatus.up && !player.moveStatus.down && player.y != 0)								player.y--;
-	if (!player.moveStatus.up && player.moveStatus.down && player.y != win_height - player.size)		player.y++;
-	if (player.moveStatus.right && !player.moveStatus.left && player.x != win_width - player.size)		player.x++;
-	if (!player.moveStatus.right && player.moveStatus.left && player.x != 0)							player.x--;
+	if (player.moveStatus.up && !player.moveStatus.down && !player.moveStatus.left && !player.moveStatus.right && player.y != 0)							player.y--;
+	if (!player.moveStatus.up && player.moveStatus.down && !player.moveStatus.left && !player.moveStatus.right && player.y != win_height - player.size)		player.y++;
+	if (player.moveStatus.right && !player.moveStatus.left && !player.moveStatus.up && !player.moveStatus.down && player.x != win_width - player.size)		player.x++;
+	if (!player.moveStatus.right && player.moveStatus.left && !player.moveStatus.up && !player.moveStatus.down && player.x != 0)							player.x--;
+
+	/*if (enemies.x != win_width - enemies.size)
+		enemies.x++;
+	if (enemies.x == win_width - enemies.size)
+		enemies.x -= 400;*/
 }
 
-void GameUpdate(Game& game,Player& player)
+void GameUpdate(Game& game, Player& player, Enemies& enemies)
 {
 	while (SDL_PollEvent(&game.ev))
 	{
@@ -66,15 +79,15 @@ void GameUpdate(Game& game,Player& player)
 			break;
 		}
 	}
-	ProcessMove(player);
+	ProcessMove(player, enemies);
 }
 
-void GameLoop(Game& game, Player& player)
+void GameLoop(Game& game, Player& player, Enemies& enemies)
 {
 	while (game.run)
 	{
-		GameUpdate(game, player);
-		GameDraw(game, player);
+		GameUpdate(game, player, enemies);
+		GameDraw(game, player, enemies);
 	}
 }
 

@@ -32,15 +32,25 @@ struct Player
 	MoveStatus moveStatus;
 };
 
+struct Enemies
+{
+	SDL_Rect rect;
+	int x = win_width / 4;
+	int y = win_height / 4;
+	int size = 17;
+};
+
 void InitPlayer(Player& player);
 
-void GameDraw(Game& game, Player& player);
+void InitEnemies(Enemies& enemies);
 
-void ProcessMove(Player& player);
+void GameDraw(Game& game, Player& player, Enemies& enemies);
 
-void GameUpdate(Game& game, Player& player);
+void ProcessMove(Player& player, Enemies& enemies);
 
-void GameLoop(Game& game, Player& player);
+void GameUpdate(Game& game, Player& player, Enemies& enemies);
+
+void GameLoop(Game& game, Player& player, Enemies& enemies);
 
 
 struct TypeBlock
