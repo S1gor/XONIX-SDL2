@@ -43,10 +43,8 @@ void ProcessMove(Player& player, Enemies& enemies)
 	if (player.moveStatus.right && !player.moveStatus.left && !player.moveStatus.up && !player.moveStatus.down && player.x != win_width - player.size)		player.x++;
 	if (!player.moveStatus.right && player.moveStatus.left && !player.moveStatus.up && !player.moveStatus.down && player.x != 0)							player.x--;
 
-	/*if (enemies.x != win_width - enemies.size)
+	if (enemies.x != win_width - enemies.size)
 		enemies.x++;
-	if (enemies.x == win_width - enemies.size)
-		enemies.x -= 400;*/
 }
 
 void GameUpdate(Game& game, Player& player, Enemies& enemies)
