@@ -6,7 +6,6 @@ int point_per_block = 5;
 void InitPlayer(Player& player)
 {
 	SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
-	player.rect = { player.x,player.y,player.size,player.size };
 	SDL_RenderDrawRect(ren, &player.rect);
 
 	/*player.surface = IMG_Load("player.jpg");
@@ -21,7 +20,6 @@ void InitPlayer(Player& player)
 void InitEnemies(Enemies& enemies)
 {
 	SDL_SetRenderDrawColor(ren, 255, 0, 0, 255);
-	enemies.rect = { enemies.x,enemies.y,enemies.size,enemies.size };
 	SDL_RenderDrawRect(ren, &enemies.rect);
 }
 
@@ -38,13 +36,37 @@ void GameDraw(Game& game, Player& player, Enemies& enemies)
 
 void ProcessMove(Player& player, Enemies& enemies)
 {
-	if (player.moveStatus.up && !player.moveStatus.down && !player.moveStatus.left && !player.moveStatus.right && player.y != 0)							player.y--;
-	if (!player.moveStatus.up && player.moveStatus.down && !player.moveStatus.left && !player.moveStatus.right && player.y != win_height - player.size)		player.y++;
-	if (player.moveStatus.right && !player.moveStatus.left && !player.moveStatus.up && !player.moveStatus.down && player.x != win_width - player.size)		player.x++;
-	if (!player.moveStatus.right && player.moveStatus.left && !player.moveStatus.up && !player.moveStatus.down && player.x != 0)							player.x--;
+	if (player.moveStatus.up && !player.moveStatus.down && !player.moveStatus.left && !player.moveStatus.right && player.rect.y != 0)								player.rect.y--;
+	if (!player.moveStatus.up && player.moveStatus.down && !player.moveStatus.left && !player.moveStatus.right && player.rect.y != win_height - player.rect.w)		player.rect.y++;
+	if (player.moveStatus.right && !player.moveStatus.left && !player.moveStatus.up && !player.moveStatus.down && player.rect.x != win_width - player.rect.w)		player.rect.x++;
+	if (!player.moveStatus.right && player.moveStatus.left && !player.moveStatus.up && !player.moveStatus.down && player.rect.x != 0)								player.rect.x--;
+}
 
-	if (enemies.x != win_width - enemies.size)
-		enemies.x++;
+void ProcessMove2(Enemies& enemies)
+{
+	enemies.rect.x += enemies.xSpeed;
+	enemies.rect.y += enemies.ySpeed;
+
+	if (enemies.rect.x + enemies.rect.w > win_width)
+	{
+		enemies.rect.x = win_width - enemies.rect.w;
+		enemies.xSpeed = -1 * (rand() % (enemies.maxSpeed - enemies.minSpeed) + enemies.minSpeed);
+	}
+	if (enemies.rect.x < 0)
+	{
+		enemies.rect.x = 0;
+		enemies.xSpeed = rand() % (enemies.maxSpeed - enemies.minSpeed) + enemies.minSpeed;
+	}
+	if (enemies.rect.y + enemies.rect.h > win_height)
+	{
+		enemies.rect.y = win_width - enemies.rect.h;
+		enemies.ySpeed = -1 * (rand() % (enemies.maxSpeed - enemies.minSpeed) + enemies.minSpeed);
+	}
+	if (enemies.rect.y < 0)
+	{
+		enemies.rect.y = 0;
+		enemies.ySpeed = rand() % (enemies.maxSpeed - enemies.minSpeed) + enemies.minSpeed;
+	}
 }
 
 void GameUpdate(Game& game, Player& player, Enemies& enemies)
@@ -78,6 +100,7 @@ void GameUpdate(Game& game, Player& player, Enemies& enemies)
 		}
 	}
 	ProcessMove(player, enemies);
+	ProcessMove2(enemies);
 }
 
 void GameLoop(Game& game, Player& player, Enemies& enemies)
