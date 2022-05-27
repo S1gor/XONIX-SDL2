@@ -1,4 +1,3 @@
-#include<iostream>
 #include<SDL.h>
 #include<SDL_image.h>
 #include<SDL_ttf.h>
@@ -8,9 +7,12 @@
 extern SDL_Window* win;
 extern SDL_Renderer* ren;
 
-extern int win_width;
-extern int win_height;
-extern int records_offset;
+#define WIN_WIDTH 800
+#define WIN_HEIGHT 700
+#define RECORDS_OFFSET 100
+//extern int win_width;
+//extern int win_height;
+//extern int records_offset;
 
 void DeInit(int error);
 

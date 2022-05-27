@@ -2,8 +2,23 @@
 
 #pragma once
 
-extern int block_width;
-extern int point_per_block;
+#define BLOCK_WIDTH 20
+#define POINT_PER_BLOCK 5
+
+struct Game
+{
+	bool run = true;
+	SDL_Event ev;
+};
+
+//enum moveStatus
+//{
+//	moveStatus_left,
+//	moveStatus_right,
+//	moveStatus_up,
+//	moveStatus_down,
+//	moveStatus_none
+//};
 
 struct MoveStatus
 {
@@ -13,25 +28,29 @@ struct MoveStatus
 	bool right = false;
 };
 
-struct Game
-{
-	bool run = true;
-	SDL_Event ev;
-};
-
 struct Player
 {
 	/*SDL_Surface* surface;
 	SDL_Texture* texture;
 	SDL_Rect img_rect;
 	SDL_Rect dst_rect;*/
-	SDL_Rect rect = { win_width / 2,win_height / 2, 17 , 17 };
+	/*SDL_Rect rect = { WIN_WIDTH / 2,WIN_HEIGHT/ 2, 17 , 17 };
+	MoveStatus moveStatus;*/
+	int x;
+	int y;
 	MoveStatus moveStatus;
+};
+
+enum difficulty
+{
+	difficulty_easy = 1,
+	difficulty_medium = 3,
+	difficulty_hard = 5,
 };
 
 struct Enemies
 {
-	SDL_Rect rect = { win_width / 2 , win_height / 2, 17 , 17 };
+	SDL_Rect rect = { WIN_WIDTH / 2 , WIN_HEIGHT/ 2, 17 , 17 };
 
 	Uint32 lastTick;
 	bool active = false;
@@ -43,10 +62,10 @@ struct Enemies
 
 enum typeBlock
 {
-	typeBlock_captured = 0,
-	typeBlock_processed = 1,
-	typeBlock_noncaptured = 2,
-	typeBlock_nondraw = 3,
+	typeBlock_captured,
+	typeBlock_processed,
+	typeBlock_noncaptured,
+	typeBlock_nondraw,
 };
 
 struct Block
@@ -60,7 +79,7 @@ struct Map
 {
 	int cols;
 	int rows;
-	Block blocks[65][33];//32
+	Block blocks[WIN_WIDTH / BLOCK_WIDTH][(WIN_HEIGHT - RECORDS_OFFSET) / BLOCK_WIDTH];
 };
 
 void InitPlayer(Player& player);
@@ -70,8 +89,6 @@ void InitEnemies(Enemies& enemies);
 void GameDraw(Game& game, Player& player, Enemies& enemies, Map& map);
 
 void ProcessMove(Player& player, Enemies& enemies);
-
-void ProcessMove2(Enemies& enemies);
 
 void GameUpdate(Game& game, Player& player, Enemies& enemies);
 
