@@ -12,7 +12,7 @@ void InitPlayer(Player& player)
 	player.texture = SDL_CreateTextureFromSurface(ren, player.surface);
 	player.img_rect = { 0,0,player.surface->w,player.surface->h };
 	SDL_FreeSurface(player.surface);
-	player.dst_rect = { player.x,player.y,player.img_rect.w / 19,player.img_rect.h / 19 };
+	player.dst_rect = { player.rect.x,player.rect.y,player.img_rect.w / 19,player.img_rect.h / 19 };
 
 	SDL_RenderCopy(ren, player.texture, NULL, &player.dst_rect);*/
 }
@@ -23,16 +23,16 @@ void InitEnemies(Enemies& enemies)
 	SDL_RenderDrawRect(ren, &enemies.rect);
 }
 
-void GameDraw(Game& game, Player& player, Enemies& enemies)
-{
-	SDL_SetRenderDrawColor(ren, 0, 225, 225, 255);
-	SDL_RenderClear(ren);
-
-	InitPlayer(player);
-	InitEnemies(enemies);
-
-	SDL_RenderPresent(ren);
-}
+//void GameDraw(Game& game, Player& player, Enemies& enemies)
+//{
+//	SDL_SetRenderDrawColor(ren, 0, 225, 225, 255);
+//	SDL_RenderClear(ren);
+//
+//	InitPlayer(player);
+//	InitEnemies(enemies);
+//
+//	SDL_RenderPresent(ren);
+//}
 
 void ProcessMove(Player& player, Enemies& enemies)
 {
@@ -103,21 +103,14 @@ void GameUpdate(Game& game, Player& player, Enemies& enemies)
 	ProcessMove2(enemies);
 }
 
-void GameLoop(Game& game, Player& player, Enemies& enemies)
-{
-	while (game.run)
-	{
-		GameUpdate(game, player, enemies);
-		GameDraw(game, player, enemies);
-	}
-}
 
 
 
 
 
 
-/*void InitMap(Map& map)
+
+void InitMap(Map& map)
 {
 	map.cols = (win_height - records_offset) / block_width;
 	map.rows = win_width / block_width;
@@ -128,9 +121,9 @@ void GameLoop(Game& game, Player& player, Enemies& enemies)
 			map.blocks[i][j].x = i;
 			map.blocks[i][j].y = j;
 			if (i == 0 || j == 0 || i == map.rows - 1 || j == map.cols - 1)
-				map.blocks[i][j].status.captured = true;
+				map.blocks[i][j].status = typeBlock_captured;
 			else
-				map.blocks[i][j].status.noncaptured = true;
+				map.blocks[i][j].status = typeBlock_noncaptured;
 		}
 	}
 }
@@ -146,13 +139,42 @@ void RenderMap(SDL_Renderer* ren, Map& map)
 			rect.x = map.blocks[i][j].x * block_width;
 			rect.y = map.blocks[i][j].y * block_width;
 
-			if (map.blocks[i][j].status.captured == true)
+			switch (map.blocks[i][j].status)
+			{
+			case typeBlock_captured:
 				SDL_SetRenderDrawColor(ren, 255, 255, 255, 255);
-			else if (map.blocks[i][j].status.noncaptured == true)
+			case typeBlock_noncaptured:
 				SDL_SetRenderDrawColor(ren, 0, 100, 100, 255);
-			else if (map.blocks[i][j].status.processed == true)
+			case typeBlock_processed:
 				SDL_SetRenderDrawColor(ren, 255, 0, 0, 255);
+			}
+			SDL_RenderFillRect(ren, &rect);
 		}
-		SDL_RenderFillRect(ren, &rect);
 	}
-}*/
+}
+
+int UpdateMap(Map& map, Enemies& enemies)
+{
+	int counter = 0; return 0;
+}
+
+void GameDraw(Game& game, Player& player, Enemies& enemies, Map& map)
+{
+	SDL_SetRenderDrawColor(ren, 0, 225, 225, 255);
+	SDL_RenderClear(ren);
+
+	InitPlayer(player);
+	InitEnemies(enemies);
+	InitMap(map);
+
+	SDL_RenderPresent(ren);
+}
+
+void GameLoop(Game& game, Player& player, Enemies& enemies, Map& map)
+{
+	while (game.run)
+	{
+		GameUpdate(game, player, enemies);
+		GameDraw(game, player, enemies, map);
+	}
+}

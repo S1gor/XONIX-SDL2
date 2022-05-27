@@ -41,33 +41,19 @@ struct Enemies
 	int ySpeed = 2;
 };
 
-void InitPlayer(Player& player);
-
-void InitEnemies(Enemies& enemies);
-
-void GameDraw(Game& game, Player& player, Enemies& enemies);
-
-void ProcessMove(Player& player, Enemies& enemies);
-
-void ProcessMove2(Enemies& enemies);
-
-void GameUpdate(Game& game, Player& player, Enemies& enemies);
-
-void GameLoop(Game& game, Player& player, Enemies& enemies);
-
-
-struct TypeBlock
+enum typeBlock
 {
-	bool captured = true;
-	bool processed = true;
-	bool noncaptured = true;
+	typeBlock_captured = 0,
+	typeBlock_processed = 1,
+	typeBlock_noncaptured = 2,
+	typeBlock_nondraw = 3,
 };
 
 struct Block
 {
 	int x;
 	int y;
-	TypeBlock status;
+	typeBlock status;
 };
 
 struct Map
@@ -77,6 +63,24 @@ struct Map
 	Block blocks[65][33];//32
 };
 
+void InitPlayer(Player& player);
+
+void InitEnemies(Enemies& enemies);
+
+void GameDraw(Game& game, Player& player, Enemies& enemies, Map& map);
+
+void ProcessMove(Player& player, Enemies& enemies);
+
+void ProcessMove2(Enemies& enemies);
+
+void GameUpdate(Game& game, Player& player, Enemies& enemies);
+
+void GameLoop(Game& game, Player& player, Enemies& enemies, Map& map);
+
+
+
 void InitMap(Map& map);
 
 void RenderMap(SDL_Renderer* ren, Map& map);
+
+int UpdateMap(Map& map, Enemies& enemies);
