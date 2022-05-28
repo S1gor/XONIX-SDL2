@@ -4,6 +4,7 @@
 
 #define BLOCK_WIDTH 20
 #define POINT_PER_BLOCK 5
+#define MAX_ENEMY 5
 
 struct Game
 {
@@ -11,16 +12,16 @@ struct Game
 	SDL_Event ev;
 };
 
-//enum moveStatus
+//enum playerMoveStatus
 //{
-//	moveStatus_left,
-//	moveStatus_right,
-//	moveStatus_up,
-//	moveStatus_down,
-//	moveStatus_none
+//	playerMoveStatus_left,
+//	playerMoveStatus_right,
+//	playerMoveStatus_up,
+//	playerMoveStatus_down,
+//	playerMoveStatus_none
 //};
 
-struct MoveStatus
+struct PlayerMoveStatus
 {
 	bool up = false;
 	bool down = false;
@@ -30,34 +31,38 @@ struct MoveStatus
 
 struct Player
 {
-	/*SDL_Surface* surface;
-	SDL_Texture* texture;
-	SDL_Rect img_rect;
-	SDL_Rect dst_rect;*/
-	/*SDL_Rect rect = { WIN_WIDTH / 2,WIN_HEIGHT/ 2, 17 , 17 };
-	MoveStatus moveStatus;*/
 	int x;
 	int y;
-	MoveStatus moveStatus;
+	PlayerMoveStatus moveStatus;
 };
 
 enum difficulty
 {
 	difficulty_easy = 1,
 	difficulty_medium = 3,
-	difficulty_hard = 5,
+	difficulty_hard = 5
+};
+
+enum enemyMoveStatus
+{
+	enemyMoveStatus_left,
+	enemyMoveStatus_right,
+	enemyMoveStatus_up,
+	enemyMoveStatus_down
+};
+
+struct Enemy
+{
+	int x;
+	int y;
+	enemyMoveStatus move_hor;
+	enemyMoveStatus move_ver;
 };
 
 struct Enemies
 {
-	SDL_Rect rect = { WIN_WIDTH / 2 , WIN_HEIGHT/ 2, 17 , 17 };
-
-	Uint32 lastTick;
-	bool active = false;
-	int minSpeed = 1;
-	int maxSpeed = 4;
-	int xSpeed = 2;
-	int ySpeed = 2;
+	Enemy mas[MAX_ENEMY];
+	difficulty counter;
 };
 
 enum typeBlock
@@ -65,7 +70,7 @@ enum typeBlock
 	typeBlock_captured,
 	typeBlock_processed,
 	typeBlock_noncaptured,
-	typeBlock_nondraw,
+	typeBlock_nondraw
 };
 
 struct Block
@@ -82,22 +87,34 @@ struct Map
 	Block blocks[WIN_WIDTH / BLOCK_WIDTH][(WIN_HEIGHT - RECORDS_OFFSET) / BLOCK_WIDTH];
 };
 
+void InitMap(Map& map);
+
 void InitPlayer(Player& player);
 
-void InitEnemies(Enemies& enemies);
+void InitEnemies(Enemies& enemies, difficulty dif);
 
-void GameDraw(Game& game, Player& player, Enemies& enemies, Map& map);
+void RenderMap(SDL_Renderer* ren, Map& map);
+
+void RenderPlayer(SDL_Renderer* ren, Player& player);
+
+void RenderEnemies(SDL_Renderer* ren, Enemies& enemies);
+
+void RenderGame(SDL_Renderer* ren, Map& map, Player& player, Enemies& enemies);
+
+void RenderWinLose(SDL_Renderer* ren, SDL_Texture* texture);
+
+
+
+
+
+void GameDraw(Game& game, Player& player, Enemies& enemies, Map& map, difficulty dif);
 
 void ProcessMove(Player& player, Enemies& enemies);
 
 void GameUpdate(Game& game, Player& player, Enemies& enemies);
 
-void GameLoop(Game& game, Player& player, Enemies& enemies, Map& map);
+void GameLoop(Game& game, Player& player, Enemies& enemies, Map& map, difficulty dif);
 
 
-
-void InitMap(Map& map);
-
-void RenderMap(SDL_Renderer* ren, Map& map);
 
 int UpdateMap(Map& map, Enemies& enemies);
