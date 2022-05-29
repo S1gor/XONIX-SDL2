@@ -12,28 +12,28 @@ struct Game
 	SDL_Event ev;
 };
 
-//enum playerMoveStatus
-//{
-//	playerMoveStatus_left,
-//	playerMoveStatus_right,
-//	playerMoveStatus_up,
-//	playerMoveStatus_down,
-//	playerMoveStatus_none
-//};
-
-struct PlayerMoveStatus
+enum playerMoveStatus
 {
-	bool up = false;
-	bool down = false;
-	bool left = false;
-	bool right = false;
+	playerMoveStatus_left,
+	playerMoveStatus_right,
+	playerMoveStatus_up,
+	playerMoveStatus_down,
+	playerMoveStatus_none
 };
+
+//struct PlayerMoveStatus
+//{
+//	bool up = false;
+//	bool down = false;
+//	bool left = false;
+//	bool right = false;
+//};
 
 struct Player
 {
 	int x;
 	int y;
-	PlayerMoveStatus moveStatus;
+	playerMoveStatus moveStatus;
 };
 
 enum difficulty
@@ -103,6 +103,15 @@ void RenderGame(SDL_Renderer* ren, Map& map, Player& player, Enemies& enemies);
 
 void RenderWinLose(SDL_Renderer* ren, SDL_Texture* texture);
 
+bool UpdatePlayer(Player& player, Enemies& enemies, Map& map);
+
+void UpdatePlayerInput(Player& player, SDL_Event* event);
+
+bool UpdateEnemies(Enemies& enemies, Map& map, Player& player);
+
+int UpdateMap(Map& map, Enemies& enemies);
+
+void Draw(Map& map, int x, int y);
 
 
 
@@ -116,5 +125,3 @@ void GameUpdate(Game& game, Player& player, Enemies& enemies);
 void GameLoop(Game& game, Player& player, Enemies& enemies, Map& map, difficulty dif);
 
 
-
-int UpdateMap(Map& map, Enemies& enemies);

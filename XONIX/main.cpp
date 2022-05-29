@@ -8,9 +8,9 @@ int main(int argc, char* argv[])
 	Player player;
 	Enemies enemies;
 	Map map;
-	difficulty dif = { difficulty_easy };
+	difficulty level = { difficulty_easy };
 
-	GameLoop(game, player, enemies, map, dif);
+	GameLoop(game, player, enemies, map, level);
 
 	DeInit(0);
 	return 0;

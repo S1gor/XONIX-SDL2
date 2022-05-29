@@ -124,55 +124,271 @@ void RenderGame(SDL_Renderer* ren, Map& map, Player& player, Enemies& enemies)
 //
 //}
 
+bool UpdatePlayer(Player& player, Enemies& enemies, Map& map)
+{
+	SDL_Rect nextPos{ 0,0,0,0 };
+	switch(player.moveStatus)
+	{
+	case playerMoveStatus_none:
+		return false;
+	case playerMoveStatus_up:
+		nextPos.x = player.x;
+		nextPos.y = player.y - 1;
+		break;
+	case playerMoveStatus_down:
+		nextPos.x = player.x;
+		nextPos.y = player.y + 1;
+		break;
+	case playerMoveStatus_left:
+		nextPos.y = player.y;
+		nextPos.x = player.x - 1;
+		break;
+	case playerMoveStatus_right:
+		nextPos.y = player.y;
+		nextPos.x = player.x + 1;
+		break;
+	}
+	if ((nextPos.x >= 0 && nextPos.x < WIN_WIDTH / BLOCK_WIDTH)
+		&& (nextPos.y >= 0 && nextPos.y < (WIN_HEIGHT - RECORDS_OFFSET) / BLOCK_WIDTH))
+	{
+		player.x = nextPos.x;
+		player.y = nextPos.y;
+
+		if (map.blocks[player.x][player.y].status == typeBlock_captured
+			&& player.moveStatus != playerMoveStatus_none)
+		{
+			//int count = updateMap(map, enemies);
+			//updateText(count, rBox);
+			player.moveStatus = playerMoveStatus_none;
+			return false;
+		}
+		else if (map.blocks[player.x][player.y].status == typeBlock_noncaptured)
+		{
+			map.blocks[player.x][player.y].status = typeBlock_processed;
+			return false;
+		}
+		else if (map.blocks[player.x][player.y].status == typeBlock_processed)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+void UpdatePlayerInput(Player& player, SDL_Event* event)
+{
+	if (event->type == SDL_KEYDOWN)
+	{
+		if (event->key.keysym.sym == SDLK_UP)
+		{
+			player.moveStatus = playerMoveStatus_up;
+		}
+		if (event->key.keysym.sym == SDLK_DOWN)
+		{
+			player.moveStatus = playerMoveStatus_down;
+		}
+		if (event->key.keysym.sym == SDLK_LEFT)
+		{
+			player.moveStatus = playerMoveStatus_left;
+		}
+		if (event->key.keysym.sym == SDLK_RIGHT)
+		{
+			player.moveStatus = playerMoveStatus_right;
+		}
+	}
+}
+
+bool UpdateEnemies(Enemies& enemies, Map& map, Player& player)
+{
+	bool isCollision = false;
+	for (int i = 0; i < int(enemies.counter); i++)
+	{
+		SDL_Rect nextPos = { 0,0,0,0 };
+		switch (enemies.mas[i].move_hor)
+		{
+		case enemyMoveStatus_left:
+			nextPos.x = enemies.mas[i].x - 1;
+			break;
+		case enemyMoveStatus_right:
+			nextPos.x = enemies.mas[i].x + 1;
+			break;
+		}
+
+		switch (enemies.mas[i].move_ver)
+		{
+		case enemyMoveStatus_up:
+			nextPos.y = enemies.mas[i].y - 1;
+			break;
+		case enemyMoveStatus_down:
+			nextPos.y = enemies.mas[i].y + 1;
+			break;
+		}
+
+		if (enemies.mas[i].x == player.x && enemies.mas[i].y == player.y)
+			isCollision = true;
+
+		/*без столкновения*/
+		if (map.blocks[nextPos.x][nextPos.y].status == typeBlock_noncaptured)
+		{
+			enemies.mas[i].x = nextPos.x;
+			enemies.mas[i].y = nextPos.y;
+		}
+		/*столкновение с уже захваченной территорией*/
+		else if (map.blocks[nextPos.x][nextPos.y].status == typeBlock_captured)
+		{
+			bool flag = false;
+			switch (enemies.mas[i].move_hor)
+			{
+			case enemyMoveStatus_left:
+				if (map.blocks[enemies.mas[i].x - 1][enemies.mas[i].y].status == typeBlock_captured)
+				{
+					enemies.mas[i].move_hor = enemyMoveStatus_right;
+					flag = true;
+				}
+				break;
+			case enemyMoveStatus_right:
+				if (map.blocks[enemies.mas[i].x + 1][enemies.mas[i].y].status == typeBlock_captured)
+				{
+					enemies.mas[i].move_hor = enemyMoveStatus_left;
+					flag = true;
+				}
+				break;
+			}
+
+			switch (enemies.mas[i].move_ver)
+			{
+			case enemyMoveStatus_up:
+				if (map.blocks[enemies.mas[i].x][enemies.mas[i].y - 1].status == typeBlock_captured)
+				{
+					enemies.mas[i].move_ver = enemyMoveStatus_down;
+					flag = true;
+				}
+				break;
+			case enemyMoveStatus_down:
+				if (map.blocks[enemies.mas[i].x][enemies.mas[i].y + 1].status == typeBlock_captured)
+				{
+					enemies.mas[i].move_ver = enemyMoveStatus_up;
+					flag = true;
+				}
+				break;
+			}
+
+			if (!flag) /*если угол*/
+			{
+				if (enemies.mas[i].move_hor == enemyMoveStatus_left)
+					enemies.mas[i].move_hor = enemyMoveStatus_right;
+				else
+					enemies.mas[i].move_hor = enemyMoveStatus_left;
+
+				if (enemies.mas[i].move_ver == enemyMoveStatus_up)
+					enemies.mas[i].move_ver = enemyMoveStatus_down;
+				else
+					enemies.mas[i].move_ver = enemyMoveStatus_up;
+			}
+		}
+		/*столкновение с территорией в процессе захвата*/
+		else if (map.blocks[nextPos.x][nextPos.y].status == typeBlock_processed)
+		{
+			isCollision = true;
+		}
+	}
+	return isCollision;
+}
+
+int UpdateMap(Map& map, Enemies& enemies)
+{
+	int counter = 0;
+
+	for (int i = 0; i < int(enemies.counter); i++)
+	{
+		Draw(map, enemies.mas[i].x, enemies.mas[i].y);
+	}
+
+	for (int i = 0; i < map.rows; i++)
+	{
+		for (int j = 0; j < map.cols; j++)
+		{
+			if (map.blocks[i][j].status == typeBlock_nondraw)
+			{
+				map.blocks[i][j].status = typeBlock_noncaptured;
+			}
+			else
+			{
+				if (map.blocks[i][j].status == typeBlock_noncaptured
+					|| map.blocks[i][j].status == typeBlock_processed)
+					counter++;
+				map.blocks[i][j].status = typeBlock_captured;
+			}
+		}
+	}
+	return counter;
+}
+
+void Draw(Map& map, int x, int y)
+{
+	if (map.blocks[x][y].status == typeBlock_noncaptured) map.blocks[x][y].status = typeBlock_nondraw;
+	if (map.blocks[x][y - 1].status == typeBlock_noncaptured) Draw(map, x, y - 1);
+	if (map.blocks[x][y + 1].status == typeBlock_noncaptured) Draw(map, x, y + 1);
+	if (map.blocks[x - 1][y].status == typeBlock_noncaptured) Draw(map, x - 1, y);
+	if (map.blocks[x + 1][y].status == typeBlock_noncaptured) Draw(map, x + 1, y);
+}
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 
 void ProcessMove(Player& player, Enemies& enemies)
 {
-	//if (player.moveStatus.up && !player.moveStatus.down && !player.moveStatus.left && !player.moveStatus.right && player.rect.y != 0)								player.rect.y--;
-	//if (!player.moveStatus.up && player.moveStatus.down && !player.moveStatus.left && !player.moveStatus.right && player.rect.y != WIN_HEIGHT- player.rect.w)		player.rect.y++;
-	//if (player.moveStatus.right && !player.moveStatus.left && !player.moveStatus.up && !player.moveStatus.down && player.rect.x != WIN_WIDTH - player.rect.w)		player.rect.x++;
-	//if (!player.moveStatus.right && player.moveStatus.left && !player.moveStatus.up && !player.moveStatus.down && player.rect.x != 0)								player.rect.x--;
+	/*if (player.moveStatus.up && !player.moveStatus.down && !player.moveStatus.left && !player.moveStatus.right && player.rect.y != 0)								player.rect.y--;
+	if (!player.moveStatus.up && player.moveStatus.down && !player.moveStatus.left && !player.moveStatus.right && player.rect.y != WIN_HEIGHT- player.rect.w)		player.rect.y++;
+	if (player.moveStatus.right && !player.moveStatus.left && !player.moveStatus.up && !player.moveStatus.down && player.rect.x != WIN_WIDTH - player.rect.w)		player.rect.x++;
+	if (!player.moveStatus.right && player.moveStatus.left && !player.moveStatus.up && !player.moveStatus.down && player.rect.x != 0)								player.rect.x--;*/
 }
 
-void GameUpdate(Game& game, Player& player, Enemies& enemies)
-{
-	while (SDL_PollEvent(&game.ev))
-	{
-		switch (game.ev.type)
-		{
-		case SDL_QUIT:
-			game.run = false;
-			break;
-		case SDL_KEYDOWN:
-			switch (game.ev.key.keysym.scancode)
-			{
-			case SDL_SCANCODE_ESCAPE:	game.run = false;					break;
-			case SDL_SCANCODE_UP:		player.moveStatus.up = true;		break;
-			case SDL_SCANCODE_DOWN:		player.moveStatus.down = true;		break;
-			case SDL_SCANCODE_RIGHT:	player.moveStatus.right = true;		break;
-			case SDL_SCANCODE_LEFT:		player.moveStatus.left = true;		break;
-			}
-			break;
-		case SDL_KEYUP:
-			switch (game.ev.key.keysym.scancode)
-			{
-			case SDL_SCANCODE_UP:		player.moveStatus.up = false;		break;
-			case SDL_SCANCODE_DOWN:		player.moveStatus.down = false;		break;
-			case SDL_SCANCODE_RIGHT:	player.moveStatus.right = false;	break;
-			case SDL_SCANCODE_LEFT:		player.moveStatus.left = false;		break;
-			}
-			break;
-		}
-	}
-	ProcessMove(player, enemies);
-}
+//void GameUpdate(Game& game, Player& player, Enemies& enemies)
+//{
+//	while (SDL_PollEvent(&game.ev))
+//	{
+//		switch (game.ev.type)
+//		{
+//		case SDL_QUIT:
+//			game.run = false;
+//			break;
+//		case SDL_KEYDOWN:
+//			switch (game.ev.key.keysym.scancode)
+//			{
+//			case SDL_SCANCODE_ESCAPE:	game.run = false;					break;
+//			case SDL_SCANCODE_UP:		player.moveStatus.up = true;		break;
+//			case SDL_SCANCODE_DOWN:		player.moveStatus.down = true;		break;
+//			case SDL_SCANCODE_RIGHT:	player.moveStatus.right = true;		break;
+//			case SDL_SCANCODE_LEFT:		player.moveStatus.left = true;		break;
+//			}
+//			break;
+//		case SDL_KEYUP:
+//			switch (game.ev.key.keysym.scancode)
+//			{
+//			case SDL_SCANCODE_UP:		player.moveStatus.up = false;		break;
+//			case SDL_SCANCODE_DOWN:		player.moveStatus.down = false;		break;
+//			case SDL_SCANCODE_RIGHT:	player.moveStatus.right = false;	break;
+//			case SDL_SCANCODE_LEFT:		player.moveStatus.left = false;		break;
+//			}
+//			break;
+//		}
+//	}
+//	ProcessMove(player, enemies);
+//}
 
-int UpdateMap(Map& map, Enemies& enemies)
-{
-	int counter = 0; return 0;
-}
+
 
 void GameDraw(Game& game, Player& player, Enemies& enemies, Map& map, difficulty dif)
 {
@@ -191,7 +407,7 @@ void GameLoop(Game& game, Player& player, Enemies& enemies, Map& map,difficulty 
 {
 	while (game.run)
 	{
-		GameUpdate(game, player, enemies);
+		//GameUpdate(game, player, enemies);
 		GameDraw(game, player, enemies, map, dif);
 	}
 }
