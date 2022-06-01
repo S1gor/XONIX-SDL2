@@ -1,4 +1,5 @@
 #include "window.h"
+#include<SDL.h>
 
 #pragma once
 

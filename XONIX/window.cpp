@@ -1,4 +1,7 @@
 #include<iostream>
+#include<SDL.h>
+#include<SDL_image.h>
+#include<SDL_ttf.h>
 
 #include "window.h"
 
@@ -23,6 +26,8 @@ void Init()
 	
 	ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
 	if (ren == NULL) DeInit(1);
+
+	TTF_Font* font = TTF_OpenFont("resources/font.ttf", 50);
 
 	int res;
 	if ((res = IMG_Init(IMG_INIT_PNG | IMG_INIT_JPG)) == 0)	DeInit(1);
