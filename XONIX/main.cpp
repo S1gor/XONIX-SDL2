@@ -1,17 +1,20 @@
-#include "game.h"
+#include "levels.h"
+#include "window.h"
 
-int main(int argc, char* argv[])
+int main(int argc, char** argv)
 {
-	Init();
+	InitSDL();
+	
+	bool quit = false;
+	Difficulty level;
 
-	Game game;
-	Player player;
-	Enemies enemies;
-	Map map;
-	difficulty level = { difficulty_easy };
+	while (!quit)
+	{
+		quit = menu(window, ren, level);
+		if (!quit)
+			game(window, ren, level);
+	}
 
-	GameLoop(game, player, enemies, map, level);
-
-	DeInit(0);
+	DeInitSDL(0);
 	return 0;
 }

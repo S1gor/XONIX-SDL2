@@ -1,72 +1,13 @@
-#include "window.h"
-#include<SDL.h>
+#ifndef _GAME_H_
+#define _GAME_H_
 
-#pragma once
+#include "window.h"
 
 #define BLOCK_WIDTH 20
 #define POINT_PER_BLOCK 5
 #define MAX_ENEMY 5
 
-struct Game
-{
-	bool run = true;
-	SDL_Event ev;
-};
-
-enum playerMoveStatus
-{
-	playerMoveStatus_left,
-	playerMoveStatus_right,
-	playerMoveStatus_up,
-	playerMoveStatus_down,
-	playerMoveStatus_none
-};
-
-//struct PlayerMoveStatus
-//{
-//	bool up = false;
-//	bool down = false;
-//	bool left = false;
-//	bool right = false;
-//};
-
-struct Player
-{
-	int x;
-	int y;
-	playerMoveStatus moveStatus;
-};
-
-enum difficulty
-{
-	difficulty_easy = 1,
-	difficulty_medium = 3,
-	difficulty_hard = 5
-};
-
-enum enemyMoveStatus
-{
-	enemyMoveStatus_left,
-	enemyMoveStatus_right,
-	enemyMoveStatus_up,
-	enemyMoveStatus_down
-};
-
-struct Enemy
-{
-	int x;
-	int y;
-	enemyMoveStatus move_hor;
-	enemyMoveStatus move_ver;
-};
-
-struct Enemies
-{
-	Enemy mas[MAX_ENEMY];
-	difficulty counter;
-};
-
-enum typeBlock
+enum typeBlock 
 {
 	typeBlock_captured,
 	typeBlock_processed,
@@ -88,41 +29,127 @@ struct Map
 	Block blocks[WIN_WIDTH / BLOCK_WIDTH][(WIN_HEIGHT - RECORDS_OFFSET) / BLOCK_WIDTH];
 };
 
+enum playerMoveStatus
+{
+	playerMoveStatus_left,
+	playerMoveStatus_right,
+	playerMoveStatus_up,
+	playerMoveStatus_down,
+	playerMoveStatus_none
+
+	/*bool playerMoveStatus_left = false;
+	bool playerMoveStatus_right = false;
+	bool playerMoveStatus_up = false;
+	bool playerMoveStatus_down = false;
+	bool playerMoveStatus_none = false;*/
+};
+
+struct Player
+{
+	int x;
+	int y;
+	playerMoveStatus moveStatus;
+};
+
+enum enemyMoveStatus
+{
+	enemyMoveStatus_left,
+	enemyMoveStatus_right,
+	enemyMoveStatus_up,
+	enemyMoveStatus_down
+};
+
+struct Enemy
+{
+	int x;
+	int y;
+	enemyMoveStatus move_hor;
+	enemyMoveStatus move_ver;
+};
+
+enum Difficulty
+{
+	difficulty_easy = 1,
+	difficulty_medium = 3,
+	difficulty_hard = 5
+};
+
+struct Enemies
+{
+	Enemy mas[MAX_ENEMY];
+	Difficulty counter;
+};
+
+struct RecordsBox
+{
+	TTF_Font* font;
+	SDL_Rect border;
+	SDL_Rect box;
+	int score;
+	int percent;
+	SDL_Surface* textPerc;
+	SDL_Surface* textScore;
+};
+
+struct Result
+{
+	TTF_Font* font;
+	SDL_Surface* surf_win;
+	SDL_Texture* tex_win;
+	SDL_Surface* surf_lose;
+	SDL_Texture* tex_lose;
+};
+
+struct AboutGame
+{
+	bool flag = false;
+	SDL_Surface* surface;
+	SDL_Texture* texture;
+	TTF_Font* font;
+};
+
 void InitMap(Map& map);
 
 void InitPlayer(Player& player);
 
-void InitEnemies(Enemies& enemies, difficulty dif);
+void InitEnemies(Enemies& enemies, Difficulty diff);
 
-void RenderMap(SDL_Renderer* ren, Map& map);
+void InitRecordsBox(RecordsBox& rBox);
+
+void InitWinLose(SDL_Renderer* ren, Result& result);
+
+void InitAboutGame(SDL_Renderer* ren, AboutGame& aboutGame);
+
+void RenderMap(SDL_Renderer* ren, Map& map, Difficulty& level);
 
 void RenderPlayer(SDL_Renderer* ren, Player& player);
 
 void RenderEnemies(SDL_Renderer* ren, Enemies& enemies);
 
-void RenderGame(SDL_Renderer* ren, Map& map, Player& player, Enemies& enemies);
+void RenderRBox(SDL_Renderer* ren, RecordsBox& rBox, Difficulty& level);
 
-void RenderWinLose(SDL_Renderer* ren, SDL_Texture* texture);
+void RenderGame(SDL_Renderer* ren, Map& map, Player& player, Enemies& enemies, RecordsBox& rBox, Difficulty& level);
 
-bool UpdatePlayer(Player& player, Enemies& enemies, Map& map);
+void RenderWinLose(SDL_Renderer* ren, Result& result, const char* win_lose);
+
+void RenderAboutGame(SDL_Renderer* ren, AboutGame& aboutGame);
+
+/*обновление игрока, 1 - столкновение*/
+bool UpdatePlayer(Player& player, Enemies& enemies, Map& map, RecordsBox& rBox);
 
 void UpdatePlayerInput(Player& player, SDL_Event* event);
 
+/*обновление шаров. True - если произошло столкновение*/
 bool UpdateEnemies(Enemies& enemies, Map& map, Player& player);
-
-int UpdateMap(Map& map, Enemies& enemies);
 
 void Draw(Map& map, int x, int y);
 
+int UpdateMap(Map& map, Enemies& enemies);
 
+void UpdateText(RecordsBox& rBox, int counterNew);
 
+bool CheckWin(RecordsBox& rBox);
 
-void GameDraw(Game& game, Player& player, Enemies& enemies, Map& map, difficulty dif);
+void DestructGame(Difficulty& level, RecordsBox& rBox, Result& result);
 
-void ProcessMove(Player& player, Enemies& enemies);
-
-void GameUpdate(Game& game, Player& player, Enemies& enemies);
-
-void GameLoop(Game& game, Player& player, Enemies& enemies, Map& map, difficulty dif);
-
-
+#endif

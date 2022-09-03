@@ -1,36 +1,58 @@
-#include<iostream>
-#include<SDL.h>
-#include<SDL_image.h>
-#include<SDL_ttf.h>
-
 #include "window.h"
+#include <iostream>
+#include <SDL_image.h>
 
-SDL_Window* win = NULL;
+SDL_Window* window = NULL;
 SDL_Renderer* ren = NULL;
 
-void DeInit(int error)
+void DeInitSDL(int error)
 {
 	SDL_DestroyRenderer(ren);
-	SDL_DestroyWindow(win);
+	SDL_DestroyWindow(window);
 	IMG_Quit();
+	TTF_Quit();
 	SDL_Quit();
 	exit(error);
 }
 
-void Init()
+void InitSDL()
 {
-	if (SDL_Init(SDL_INIT_VIDEO) != 0)	DeInit(1);
+	if (SDL_Init(SDL_INIT_VIDEO) != 0)
+	{
+		printf("Не удалось инициализировать SDL!");
+		DeInitSDL(1);
+	}
 
-	win = SDL_CreateWindow("XONIX", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WIN_WIDTH, WIN_HEIGHT, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
-	if (win == NULL) DeInit(1);
+	window = SDL_CreateWindow("XONIX", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WIN_WIDTH, WIN_HEIGHT, SDL_WINDOW_SHOWN);
+	if (window == NULL)
+	{
+		printf("Не удалось создать окно!");
+		DeInitSDL(1);
+	}
 	
-	ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
-	if (ren == NULL) DeInit(1);
-
-	TTF_Font* font = TTF_OpenFont("resources/font.ttf", 50);
+	ren = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+	if (ren == NULL)
+	{
+		printf("Не удалось создать рисовальщик!");
+		DeInitSDL(1);
+	}
 
 	int res;
-	if ((res = IMG_Init(IMG_INIT_PNG | IMG_INIT_JPG)) == 0)	DeInit(1);
-	if (res & IMG_INIT_PNG) printf("Initialized PNG library\n"); else printf("Couldn't init PNG library\n");
-	if (res & IMG_INIT_JPG) printf("Initialized JPG library\n"); else printf("Couldn't init JPG library\n");
+	if ((res = IMG_Init(IMG_INIT_PNG | IMG_INIT_JPG)) == 0)
+	{
+		printf("Не удалось инициализировать SDL_Image!");
+		DeInitSDL(1);
+	}
+	if (!IMG_INIT_PNG)	printf("Не удалось инициализировать библиотеку PNG.\n");
+	if (!IMG_INIT_JPG)	printf("Не удалось инициализировать библиотеку JPG.\n");
+}
+
+void InitFont(TTF_Font*& font)
+{
+	if (TTF_Init())
+	{
+		printf("Не удалось инициализировать шрифт!");
+		DeInitSDL(1);
+	}
+	font = TTF_OpenFont("resources/mrd_aachen_bold.ttf", 50);
 }
