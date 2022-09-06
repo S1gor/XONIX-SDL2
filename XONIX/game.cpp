@@ -8,7 +8,6 @@ void InitMap(Map& map)
 	map.rows = WIN_WIDTH / BLOCK_WIDTH;
 
 	for (int i = 0; i < map.rows; i++)
-	{
 		for (int j = 0; j < map.cols; j++)
 		{
 			map.blocks[i][j].x = i;
@@ -18,7 +17,6 @@ void InitMap(Map& map)
 			else
 				map.blocks[i][j].status = typeBlock_noncaptured;
 		}
-	}
 }
 
 void InitPlayer(Player& player)
@@ -94,27 +92,33 @@ void RenderMap(SDL_Renderer* ren, Map& map, Difficulty& level)
 			rect.x = map.blocks[i][j].x * BLOCK_WIDTH;
 			rect.y = map.blocks[i][j].y * BLOCK_WIDTH;
 
-			if (level == difficulty_easy)
+			switch (level)
+			{
+			case difficulty_easy:
 				switch (map.blocks[i][j].status)
 				{
 				case typeBlock_captured:	SDL_SetRenderDrawColor(ren, 68, 148, 74, 255);		break;
 				case typeBlock_noncaptured:	SDL_SetRenderDrawColor(ren, 168, 228, 160, 255);	break;
 				case typeBlock_processed:	SDL_SetRenderDrawColor(ren, 30, 89, 69, 255);		break;
 				}
-			else if (level == difficulty_medium)
+				break;
+			case difficulty_medium:
 				switch (map.blocks[i][j].status)
 				{
 				case typeBlock_captured:	SDL_SetRenderDrawColor(ren, 243, 165, 5, 255);		break;
 				case typeBlock_noncaptured:	SDL_SetRenderDrawColor(ren, 255, 202, 134, 255);	break;
 				case typeBlock_processed:	SDL_SetRenderDrawColor(ren, 237, 118, 14, 255);		break;
 				}
-			else
+				break;
+			case difficulty_hard:
 				switch (map.blocks[i][j].status)
 				{
 				case typeBlock_captured:	SDL_SetRenderDrawColor(ren, 161, 35, 18, 255);		break;
 				case typeBlock_noncaptured:	SDL_SetRenderDrawColor(ren, 205, 92, 92, 255);		break;
 				case typeBlock_processed:	SDL_SetRenderDrawColor(ren, 72, 6, 7, 255);			break;
 				}
+				break;
+			}
 			SDL_RenderFillRect(ren, &rect);
 		}
 	}
@@ -154,24 +158,25 @@ void RenderEnemies(SDL_Renderer* ren, Enemies& enemies)
 
 void RenderRBox(SDL_Renderer* ren, RecordsBox& rBox, Difficulty& level)
 {
-	if (level == difficulty_easy)
+	switch (level)
 	{
+	case difficulty_easy:
 		SDL_SetRenderDrawColor(ren, 168, 228, 160, 255);
 		SDL_RenderFillRect(ren, &rBox.border);
 		SDL_SetRenderDrawColor(ren, 68, 148, 74, 255);
-	}
-	else if (level == difficulty_medium)
-	{
+		break;
+	case difficulty_medium:
 		SDL_SetRenderDrawColor(ren, 255, 202, 134, 255);
 		SDL_RenderFillRect(ren, &rBox.border);
 		SDL_SetRenderDrawColor(ren, 243, 165, 5, 255);
-	}
-	else
-	{
+		break;
+	case difficulty_hard:
 		SDL_SetRenderDrawColor(ren, 205, 92, 92, 255);
 		SDL_RenderFillRect(ren, &rBox.border);
 		SDL_SetRenderDrawColor(ren, 161, 35, 18, 255);
+		break;
 	}
+
 	SDL_RenderFillRect(ren, &rBox.box);
 
 	SDL_Texture* tScore = SDL_CreateTextureFromSurface(ren, rBox.textScore);
@@ -214,7 +219,8 @@ void RenderWinLose(SDL_Renderer* ren, Result& result, const char* win_lose)
 
 void RenderAboutGame(SDL_Renderer* ren, AboutGame& aboutGame)
 {
-	SDL_Rect rect = { WIN_WIDTH / 2 - 250, WIN_HEIGHT / 2 - 100, 100, 20 };
+	SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
+	SDL_Rect rect = { WIN_WIDTH / 2 - 250, WIN_HEIGHT / 2 - 100, 300, 70 };
 	aboutGame.texture = SDL_CreateTextureFromSurface(ren, aboutGame.surface);
 	SDL_RenderCopy(ren, aboutGame.texture, NULL, &rect);
 	SDL_DestroyTexture(aboutGame.texture);
@@ -245,29 +251,6 @@ bool UpdatePlayer(Player& player, Enemies& enemies, Map& map, RecordsBox& rBox)
 		break;
 	}
 
-	/*if (player.moveStatus.playerMoveStatus_none)
-		return false;
-	else if (player.moveStatus.playerMoveStatus_up)
-	{
-		nextPos.x = player.x;
-		nextPos.y = player.y - 1;
-	}
-	else if (player.moveStatus.playerMoveStatus_down)
-	{
-		nextPos.x = player.x;
-		nextPos.y = player.y + 1;
-	}
-	else if (player.moveStatus.playerMoveStatus_left)
-	{
-		nextPos.y = player.y;
-		nextPos.x = player.x - 1;
-	}
-	else if (player.moveStatus.playerMoveStatus_right)
-	{
-		nextPos.y = player.y;
-		nextPos.x = player.x + 1;
-	}*/
-
 	if ((nextPos.x >= 0 && nextPos.x < WIN_WIDTH / BLOCK_WIDTH) && (nextPos.y >= 0 && nextPos.y < (WIN_HEIGHT - RECORDS_OFFSET) / BLOCK_WIDTH))
 	{
 		player.x = nextPos.x;
@@ -286,9 +269,7 @@ bool UpdatePlayer(Player& player, Enemies& enemies, Map& map, RecordsBox& rBox)
 			return false;
 		}
 		else if (map.blocks[player.x][player.y].status == typeBlock_processed)
-		{
 			return true;
-		}
 	}
 	return false;
 }
@@ -304,22 +285,8 @@ void UpdatePlayerInput(Player& player, SDL_Event* event)
 		case SDL_SCANCODE_DOWN:		player.moveStatus = playerMoveStatus_down;		break;
 		case SDL_SCANCODE_LEFT:		player.moveStatus = playerMoveStatus_left;		break;
 		case SDL_SCANCODE_RIGHT:	player.moveStatus = playerMoveStatus_right;		break;
-
-		/*case SDL_SCANCODE_UP:		player.moveStatus.playerMoveStatus_up = true;		break;
-		case SDL_SCANCODE_DOWN:		player.moveStatus.playerMoveStatus_down = true;		break;
-		case SDL_SCANCODE_LEFT:		player.moveStatus.playerMoveStatus_left = true;		break;
-		case SDL_SCANCODE_RIGHT:	player.moveStatus.playerMoveStatus_right = true;	break;*/
 		}
 		break;
-	/*case SDL_KEYUP:
-		switch (event->key.keysym.scancode)
-		{
-		case SDL_SCANCODE_UP:		player.moveStatus.playerMoveStatus_up = false;			break;
-		case SDL_SCANCODE_DOWN:		player.moveStatus.playerMoveStatus_down = false;		break;
-		case SDL_SCANCODE_RIGHT:	player.moveStatus.playerMoveStatus_right= false;		break;
-		case SDL_SCANCODE_LEFT:		player.moveStatus.playerMoveStatus_left = false;		break;
-		}
-		break;*/
 	}
 }
 
@@ -352,12 +319,13 @@ bool UpdateEnemies(Enemies& enemies, Map& map, Player& player)
 		if (enemies.mas[i].x == player.x && enemies.mas[i].y == player.y)
 			isCollision = true;
 
-		if (map.blocks[nextPos.x][nextPos.y].status == typeBlock_noncaptured)
+		switch (map.blocks[nextPos.x][nextPos.y].status)
 		{
+		case typeBlock_noncaptured:
 			enemies.mas[i].x = nextPos.x;
 			enemies.mas[i].y = nextPos.y;
-		}
-		else if (map.blocks[nextPos.x][nextPos.y].status == typeBlock_captured)
+			break;
+		case typeBlock_captured:
 		{
 			bool corner = true;
 			switch (enemies.mas[i].move_hor)
@@ -408,9 +376,12 @@ bool UpdateEnemies(Enemies& enemies, Map& map, Player& player)
 				else
 					enemies.mas[i].move_ver = enemyMoveStatus_up;
 			}
+			break;
 		}
-		else if (map.blocks[nextPos.x][nextPos.y].status == typeBlock_processed)
+		case typeBlock_processed:
 			isCollision = true;
+			break;
+		}
 	}
 	return isCollision;
 }
@@ -481,9 +452,7 @@ void UpdateText(RecordsBox& rBox, int counterNew)
 
 bool CheckWin(RecordsBox& rBox)
 {
-	if (rBox.percent >= 80)
-		return true;
-	return false;
+	return rBox.percent >= 80;
 }
 
 void DestructGame(Difficulty& level, RecordsBox& rBox, Result& result)

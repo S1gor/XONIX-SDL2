@@ -87,13 +87,12 @@ void game(SDL_Window* window, SDL_Renderer* ren, Difficulty& level)
 			UpdatePlayerInput(player, &event);
 		}
 
-		/*if (flag)
+		/*if (aboutGame.flag)
 		{
 			quit = true;
-			SDL_RenderClear(ren);
 			RenderAboutGame(ren, aboutGame);
-			SDL_RenderPresent(ren);
 		}*/
+
 		if (UpdatePlayer(player, enemies, map, rBox))
 		{
 			quit = true;

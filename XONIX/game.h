@@ -36,12 +36,6 @@ enum playerMoveStatus
 	playerMoveStatus_up,
 	playerMoveStatus_down,
 	playerMoveStatus_none
-
-	/*bool playerMoveStatus_left = false;
-	bool playerMoveStatus_right = false;
-	bool playerMoveStatus_up = false;
-	bool playerMoveStatus_down = false;
-	bool playerMoveStatus_none = false;*/
 };
 
 struct Player
@@ -134,12 +128,10 @@ void RenderWinLose(SDL_Renderer* ren, Result& result, const char* win_lose);
 
 void RenderAboutGame(SDL_Renderer* ren, AboutGame& aboutGame);
 
-/*обновление игрока, 1 - столкновение*/
 bool UpdatePlayer(Player& player, Enemies& enemies, Map& map, RecordsBox& rBox);
 
 void UpdatePlayerInput(Player& player, SDL_Event* event);
 
-/*обновление шаров. True - если произошло столкновение*/
 bool UpdateEnemies(Enemies& enemies, Map& map, Player& player);
 
 void Draw(Map& map, int x, int y);
