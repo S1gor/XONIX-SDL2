@@ -86,7 +86,6 @@ void RenderMap(SDL_Renderer* ren, Map& map, Difficulty& level)
 	SDL_Rect rect;
 	rect.w = rect.h = BLOCK_WIDTH;
 	for (int i = 0; i < map.rows; i++)
-	{
 		for (int j = 0; j < map.cols; j++)
 		{
 			rect.x = map.blocks[i][j].x * BLOCK_WIDTH;
@@ -121,20 +120,14 @@ void RenderMap(SDL_Renderer* ren, Map& map, Difficulty& level)
 			}
 			SDL_RenderFillRect(ren, &rect);
 		}
-	}
 }
 
 void RenderPlayer(SDL_Renderer* ren, Player& player)
 {
-	SDL_Rect border, rect;
-	border.x = player.x * BLOCK_WIDTH;
-	border.y = player.y * BLOCK_WIDTH;
-	border.w = border.h = BLOCK_WIDTH;
-	rect.x = border.x + 1;
-	rect.y = border.y + 1;
-	rect.w = rect.h = BLOCK_WIDTH - 2;
-	SDL_SetRenderDrawColor(ren, 0, 0, 0, 0);
-	SDL_RenderFillRect(ren, &border);
+	SDL_Rect rect;
+	rect.x = player.x * BLOCK_WIDTH;
+	rect.y = player.y * BLOCK_WIDTH;
+	rect.w = rect.h = BLOCK_WIDTH;
 	SDL_SetRenderDrawColor(ren, 255, 255, 255, 0);
 	SDL_RenderFillRect(ren, &rect);
 }
@@ -219,11 +212,12 @@ void RenderWinLose(SDL_Renderer* ren, Result& result, const char* win_lose)
 
 void RenderAboutGame(SDL_Renderer* ren, AboutGame& aboutGame)
 {
-	SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
+	SDL_SetRenderDrawColor(ren, 255, 0, 0, 255);
 	SDL_Rect rect = { WIN_WIDTH / 2 - 250, WIN_HEIGHT / 2 - 100, 300, 70 };
 	aboutGame.texture = SDL_CreateTextureFromSurface(ren, aboutGame.surface);
 	SDL_RenderCopy(ren, aboutGame.texture, NULL, &rect);
 	SDL_DestroyTexture(aboutGame.texture);
+	SDL_RenderPresent(ren);
 }
 
 bool UpdatePlayer(Player& player, Enemies& enemies, Map& map, RecordsBox& rBox)
@@ -386,13 +380,13 @@ bool UpdateEnemies(Enemies& enemies, Map& map, Player& player)
 	return isCollision;
 }
 
-void Draw(Map& map, int x, int y)
+void CheckMap(Map& map, int x, int y)
 {
 	if (map.blocks[x][y].status == typeBlock_noncaptured) map.blocks[x][y].status = typeBlock_nondraw;
-	if (map.blocks[x][y - 1].status == typeBlock_noncaptured) Draw(map, x, y - 1);
-	if (map.blocks[x][y + 1].status == typeBlock_noncaptured) Draw(map, x, y + 1);
-	if (map.blocks[x - 1][y].status == typeBlock_noncaptured) Draw(map, x - 1, y);
-	if (map.blocks[x + 1][y].status == typeBlock_noncaptured) Draw(map, x + 1, y);
+	if (map.blocks[x][y - 1].status == typeBlock_noncaptured) CheckMap(map, x, y - 1);
+	if (map.blocks[x][y + 1].status == typeBlock_noncaptured) CheckMap(map, x, y + 1);
+	if (map.blocks[x - 1][y].status == typeBlock_noncaptured) CheckMap(map, x - 1, y);
+	if (map.blocks[x + 1][y].status == typeBlock_noncaptured) CheckMap(map, x + 1, y);
 }
 
 int UpdateMap(Map& map, Enemies& enemies)
@@ -401,7 +395,7 @@ int UpdateMap(Map& map, Enemies& enemies)
 
 	for (int i = 0; i < enemies.counter; i++)
 	{
-		Draw(map, enemies.mas[i].x, enemies.mas[i].y);
+		CheckMap(map, enemies.mas[i].x, enemies.mas[i].y);
 	}
 
 	for (int i = 0; i < map.rows; i++)
@@ -461,10 +455,10 @@ void DestructGame(Difficulty& level, RecordsBox& rBox, Result& result)
 	TTF_CloseFont(result.font);
 	SDL_FreeSurface(rBox.textPerc);
 	SDL_FreeSurface(rBox.textScore);
+	SDL_FreeSurface(result.surf_win);
+	SDL_FreeSurface(result.surf_lose);
 
-	int rec_easy;
-	int rec_medium;
-	int rec_hard;
+	int rec_easy, rec_medium, rec_hard;
 
 	FILE* file;
 	char rec_file[] = "resources/records.txt";

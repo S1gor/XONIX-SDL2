@@ -3,17 +3,17 @@
 #include <SDL_image.h>
 #include "menu.h"
 
-void InitBackground(SDL_Texture*& background, SDL_Renderer* ren)
+void InitBackground(SDL_Renderer* ren, Background& background)
 {
 	char picture[] = "resources/background.jpeg";
 
-	SDL_Surface* surface = IMG_Load(picture);
-	if (surface == NULL)	printf("Не удалось загрузить картинку %s", picture);
-	background = SDL_CreateTextureFromSurface(ren, surface);
-	SDL_FreeSurface(surface);
+	background.surfaceBack = IMG_Load(picture);
+	if (background.surfaceBack == NULL)	printf("Не удалось загрузить картинку %s", picture);
+	background.textureBack = SDL_CreateTextureFromSurface(ren, background.surfaceBack);
+	SDL_FreeSurface(background.surfaceBack);
 }
 
-void InitButtons(MenuButton& menuButton, SDL_Renderer* ren)
+void InitButtons(SDL_Renderer* ren, MenuButton& menuButton)
 {
 	char pictureButton[] = "resources/button.bmp";
 	char nameButton[5][30] = { "Лёгкий уровень", "Средний уровень", "Тяжёлый уровень", "О игре", "Выйти" };
@@ -59,9 +59,9 @@ void InitButtons(MenuButton& menuButton, SDL_Renderer* ren)
 	fclose(file);
 }
 
-void RenderBackground(SDL_Renderer* ren, SDL_Texture* background)
+void RenderBackground(SDL_Renderer* ren, Background& background)
 {
-	SDL_RenderCopy(ren, background, NULL, NULL);
+	SDL_RenderCopy(ren, background.textureBack, NULL, NULL);
 }
 
 void RenderButtons(SDL_Renderer* ren, MenuButton& menuButton)
@@ -71,21 +71,21 @@ void RenderButtons(SDL_Renderer* ren, MenuButton& menuButton)
 		SDL_RenderCopy(ren, menuButton.button[number].buttonBack, NULL, &menuButton.button[number].button);
 		
 		SDL_Texture* tButton = SDL_CreateTextureFromSurface(ren, menuButton.button[number].textButton);
-		SDL_Rect rScore = { WIN_WIDTH / 2 - BUTTON_WIDTH / 4 * 2.5, WIN_HEIGHT / 6 + 7 + number * 100, 300, 50 };
-		SDL_RenderCopy(ren, tButton, NULL, &rScore);
+		SDL_Rect rButton = { WIN_WIDTH / 2 - BUTTON_WIDTH / 4 * 2.5, WIN_HEIGHT / 6 + 7 + number * 100, 300, 50 };
+		SDL_RenderCopy(ren, tButton, NULL, &rButton);
 		SDL_DestroyTexture(tButton);
 
 		if (number != BUTTON_COUNT - 1 && number != BUTTON_COUNT - 2)
 		{
-			SDL_Texture* texture = SDL_CreateTextureFromSurface(ren, menuButton.button[number].textRec);
-			SDL_Rect rect = { menuButton.button[number].button.x + menuButton.button[number].button.w + 25, menuButton.button[number].button.y + 10, 200, 50 };
-			SDL_RenderCopy(ren, texture, NULL, &rect);
-			SDL_DestroyTexture(texture);
+			SDL_Texture* tRec = SDL_CreateTextureFromSurface(ren, menuButton.button[number].textRec);
+			SDL_Rect rRec = { menuButton.button[number].button.x + menuButton.button[number].button.w + 25, menuButton.button[number].button.y + 10, 200, 50 };
+			SDL_RenderCopy(ren, tRec, NULL, &rRec);
+			SDL_DestroyTexture(tRec);
 		}
 	}
 }
 
-void RenderMenu(SDL_Renderer* ren, SDL_Texture* background, MenuButton& menuButton)
+void RenderMenu(SDL_Renderer* ren, Background& background, MenuButton& menuButton)
 {
 	RenderBackground(ren, background);
 	RenderButtons(ren, menuButton);
@@ -93,7 +93,7 @@ void RenderMenu(SDL_Renderer* ren, SDL_Texture* background, MenuButton& menuButt
 
 int UpdateMenu(SDL_Event* event, MenuButton& menuButton)
 {
-	if ((event->type == SDL_MOUSEBUTTONDOWN) && (event->button.button == SDL_BUTTON_LEFT))
+	if (event->type == SDL_MOUSEBUTTONDOWN)
 		for (int number = 0; number < BUTTON_COUNT; number++)
 		{
 			if (((menuButton.button[number].button.x <= event->button.x) && (event->button.x <= menuButton.button[number].button.x + menuButton.button[number].button.w))
@@ -107,14 +107,15 @@ int UpdateMenu(SDL_Event* event, MenuButton& menuButton)
 		}
 }
 
-void DestructMenu(SDL_Texture* background, MenuButton& menuButton)
+void DestructMenu(Background& background, MenuButton& menuButton)
 {
-	SDL_DestroyTexture(background);
+	SDL_DestroyTexture(background.textureBack);
 	TTF_CloseFont(menuButton.button->font);
 	TTF_Quit();
 	for (int number = 0; number < BUTTON_COUNT; number++)
 	{
 		SDL_DestroyTexture(menuButton.button[number].buttonBack);
+		SDL_FreeSurface(menuButton.button[number].textButton);
 
 		if (number != BUTTON_COUNT - 1 && number != BUTTON_COUNT - 2)
 			SDL_FreeSurface(menuButton.button[number].textRec);

@@ -1,14 +1,14 @@
 #include "levels.h"
 
-bool menu(SDL_Window* window, SDL_Renderer* ren, Difficulty& level)
+bool menu(SDL_Window* window, SDL_Renderer* ren, Difficulty& level, AboutGame& aboutGame)
 {
 	bool quit = false;
 
-	SDL_Texture* background = NULL;
+	Background background;
 	MenuButton menuButton;
-	AboutGame aboutGame;
-	InitBackground(background, ren);
-	InitButtons(menuButton, ren);
+	//AboutGame aboutGame;
+	InitBackground(ren, background);
+	InitButtons(ren, menuButton);
 
 	SDL_Event event;
 
@@ -41,24 +41,19 @@ bool menu(SDL_Window* window, SDL_Renderer* ren, Difficulty& level)
 				quit = true;
 				break;
 			case 0:
-				quit = true;
 				DestructMenu(background, menuButton);
 				return true;
 			}
 		}
-
 		SDL_RenderClear(ren);
-		
 		RenderMenu(ren, background, menuButton);
-
 		SDL_RenderPresent(ren);	
 	}
-
 	DestructMenu(background, menuButton);
 	return false;
 }
 
-void game(SDL_Window* window, SDL_Renderer* ren, Difficulty& level)
+void game(SDL_Window* window, SDL_Renderer* ren, Difficulty& level, AboutGame& aboutGame)
 {
 	bool quit = false;
 
@@ -69,7 +64,7 @@ void game(SDL_Window* window, SDL_Renderer* ren, Difficulty& level)
 	Enemies enemies;
 	RecordsBox rBox;
 	Result result;
-	AboutGame aboutGame;
+	//AboutGame aboutGame;
 
 	InitMap(map);
 	InitPlayer(player);
@@ -77,7 +72,6 @@ void game(SDL_Window* window, SDL_Renderer* ren, Difficulty& level)
 	InitRecordsBox(rBox);
 	InitWinLose(ren, result);
 	InitAboutGame(ren, aboutGame);
-
 	while (!quit)
 	{
 		while (SDL_PollEvent(&event))
@@ -118,8 +112,7 @@ void game(SDL_Window* window, SDL_Renderer* ren, Difficulty& level)
 			quit = true;
 			RenderWinLose(ren, result, "win");
 		}
-
-		SDL_Delay(100);
+		SDL_Delay(85);
 	}
 	DestructGame(level, rBox, result);
 }

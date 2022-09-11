@@ -7,12 +7,13 @@ int main(int argc, char** argv)
 	
 	bool quit = false;
 	Difficulty level;
+	AboutGame aboutGame;
 
 	while (!quit)
 	{
-		quit = menu(window, ren, level);
+		quit = menu(window, ren, level, aboutGame);
 		if (!quit)
-			game(window, ren, level);
+			game(window, ren, level, aboutGame);
 	}
 
 	DeInitSDL(0);
