@@ -77,7 +77,6 @@ struct Enemies
 struct RecordsBox
 {
 	TTF_Font* font;
-	SDL_Rect border;
 	SDL_Rect box;
 	int score;
 	int percent;
@@ -96,10 +95,10 @@ struct Result
 
 struct AboutGame
 {
+	TTF_Font* font;
 	bool flag = false;
 	SDL_Surface* surface;
 	SDL_Texture* texture;
-	TTF_Font* font;
 };
 
 void InitMap(Map& map);

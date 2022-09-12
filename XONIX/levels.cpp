@@ -72,6 +72,7 @@ void game(SDL_Window* window, SDL_Renderer* ren, Difficulty& level, AboutGame& a
 	InitRecordsBox(rBox);
 	InitWinLose(ren, result);
 	InitAboutGame(ren, aboutGame);
+
 	while (!quit)
 	{
 		while (SDL_PollEvent(&event))
@@ -81,11 +82,12 @@ void game(SDL_Window* window, SDL_Renderer* ren, Difficulty& level, AboutGame& a
 			UpdatePlayerInput(player, &event);
 		}
 
-		/*if (aboutGame.flag)
+		if (aboutGame.flag)
 		{
 			quit = true;
 			RenderAboutGame(ren, aboutGame);
-		}*/
+			aboutGame.flag = false;
+		}
 
 		if (UpdatePlayer(player, enemies, map, rBox))
 		{
@@ -112,7 +114,7 @@ void game(SDL_Window* window, SDL_Renderer* ren, Difficulty& level, AboutGame& a
 			quit = true;
 			RenderWinLose(ren, result, "win");
 		}
-		SDL_Delay(85);
+		SDL_Delay(90);
 	}
 	DestructGame(level, rBox, result);
 }

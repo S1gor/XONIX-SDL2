@@ -42,15 +42,10 @@ void InitEnemies(Enemies& enemies, Difficulty dif)
 
 void InitRecordsBox(RecordsBox& rBox)
 {
-	rBox.border.x = 20;
-	rBox.border.y = WIN_HEIGHT - RECORDS_OFFSET;
-	rBox.border.w = WIN_WIDTH - 40;
-	rBox.border.h = RECORDS_OFFSET - 7;
-
-	rBox.box.x = rBox.border.x + 2;
-	rBox.box.y = rBox.border.y + 2;
-	rBox.box.w = rBox.border.w - 4;
-	rBox.box.h = rBox.border.h - 4;
+	rBox.box.x = 0;
+	rBox.box.y = WIN_HEIGHT - RECORDS_OFFSET;
+	rBox.box.w = WIN_WIDTH;
+	rBox.box.h = RECORDS_OFFSET;
 
 	rBox.score = 0;
 	rBox.percent = 0;
@@ -154,31 +149,24 @@ void RenderRBox(SDL_Renderer* ren, RecordsBox& rBox, Difficulty& level)
 	switch (level)
 	{
 	case difficulty_easy:
-		SDL_SetRenderDrawColor(ren, 168, 228, 160, 255);
-		SDL_RenderFillRect(ren, &rBox.border);
 		SDL_SetRenderDrawColor(ren, 68, 148, 74, 255);
 		break;
 	case difficulty_medium:
-		SDL_SetRenderDrawColor(ren, 255, 202, 134, 255);
-		SDL_RenderFillRect(ren, &rBox.border);
 		SDL_SetRenderDrawColor(ren, 243, 165, 5, 255);
 		break;
 	case difficulty_hard:
-		SDL_SetRenderDrawColor(ren, 205, 92, 92, 255);
-		SDL_RenderFillRect(ren, &rBox.border);
 		SDL_SetRenderDrawColor(ren, 161, 35, 18, 255);
 		break;
 	}
-
 	SDL_RenderFillRect(ren, &rBox.box);
 
 	SDL_Texture* tScore = SDL_CreateTextureFromSurface(ren, rBox.textScore);
-	SDL_Rect rScore = { 50, WIN_HEIGHT - RECORDS_OFFSET + 25, 175, 50 };
+	SDL_Rect rScore = { 50, WIN_HEIGHT - RECORDS_OFFSET + 17, 200, 50 };
 	SDL_RenderCopy(ren, tScore, NULL, &rScore);
 	SDL_DestroyTexture(tScore);
 
 	SDL_Texture* tPerc = SDL_CreateTextureFromSurface(ren, rBox.textPerc);
-	SDL_Rect rPerc = { WIN_WIDTH / 2, WIN_HEIGHT - RECORDS_OFFSET + 25, 300, 50 };
+	SDL_Rect rPerc = { WIN_WIDTH / 2, WIN_HEIGHT - RECORDS_OFFSET + 17, 300, 50 };
 	SDL_RenderCopy(ren, tPerc, NULL, &rPerc);
 	SDL_DestroyTexture(tPerc);
 }
@@ -212,17 +200,21 @@ void RenderWinLose(SDL_Renderer* ren, Result& result, const char* win_lose)
 
 void RenderAboutGame(SDL_Renderer* ren, AboutGame& aboutGame)
 {
+	SDL_Rect rect = { WIN_WIDTH / 2 - 250, WIN_HEIGHT / 2 - 100, 500, 125 };
+	SDL_Rect rectFull = { 0,0,WIN_WIDTH, WIN_HEIGHT };
 	SDL_SetRenderDrawColor(ren, 255, 0, 0, 255);
-	SDL_Rect rect = { WIN_WIDTH / 2 - 250, WIN_HEIGHT / 2 - 100, 300, 70 };
+	SDL_RenderFillRect(ren, &rectFull);
 	aboutGame.texture = SDL_CreateTextureFromSurface(ren, aboutGame.surface);
 	SDL_RenderCopy(ren, aboutGame.texture, NULL, &rect);
 	SDL_DestroyTexture(aboutGame.texture);
 	SDL_RenderPresent(ren);
+	SDL_Delay(1000);
 }
 
 bool UpdatePlayer(Player& player, Enemies& enemies, Map& map, RecordsBox& rBox)
 {
 	SDL_Rect nextPos = { 0,0,0,0 };
+	
 	switch (player.moveStatus)
 	{
 	case playerMoveStatus_none:
@@ -394,9 +386,7 @@ int UpdateMap(Map& map, Enemies& enemies)
 	int counter = 0;
 
 	for (int i = 0; i < enemies.counter; i++)
-	{
 		CheckMap(map, enemies.mas[i].x, enemies.mas[i].y);
-	}
 
 	for (int i = 0; i < map.rows; i++)
 		for (int j = 0; j < map.cols; j++)
@@ -415,7 +405,7 @@ int UpdateMap(Map& map, Enemies& enemies)
 
 void UpdateText(RecordsBox& rBox, int counterNew)
 {
-	SDL_Color color = { 0, 0, 0 };
+	SDL_Color color = { 0, 0, 0, 255 };
 
 	rBox.score += POINT_PER_BLOCK * counterNew;
 	int blocks = rBox.score / POINT_PER_BLOCK;
@@ -453,8 +443,6 @@ void DestructGame(Difficulty& level, RecordsBox& rBox, Result& result)
 {
 	TTF_CloseFont(rBox.font);
 	TTF_CloseFont(result.font);
-	SDL_FreeSurface(rBox.textPerc);
-	SDL_FreeSurface(rBox.textScore);
 	SDL_FreeSurface(result.surf_win);
 	SDL_FreeSurface(result.surf_lose);
 
@@ -465,9 +453,7 @@ void DestructGame(Difficulty& level, RecordsBox& rBox, Result& result)
 	fopen_s(&file, rec_file, "r");
 	if (file == NULL)		printf("Не удалось открыть файл %s", rec_file);
 
-	fscanf_s(file, "%d", &rec_easy);
-	fscanf_s(file, "%d", &rec_medium);
-	fscanf_s(file, "%d", &rec_hard);
+	fscanf_s(file, "%d%d%d", &rec_easy, &rec_medium, &rec_hard);
 	
 	fclose(file);
 
