@@ -6,7 +6,6 @@ bool menu(SDL_Window* window, SDL_Renderer* ren, Difficulty& level, AboutGame& a
 
 	Background background;
 	MenuButton menuButton;
-	//AboutGame aboutGame;
 	InitBackground(ren, background);
 	InitButtons(ren, menuButton);
 
@@ -16,7 +15,7 @@ bool menu(SDL_Window* window, SDL_Renderer* ren, Difficulty& level, AboutGame& a
 	{
 		while (SDL_PollEvent(&event))
 		{
-			if (event.type == SDL_QUIT || event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
+			if (event.type == SDL_QUIT)
 			{
 				DestructMenu(background, menuButton);
 				return true;
@@ -64,7 +63,6 @@ void game(SDL_Window* window, SDL_Renderer* ren, Difficulty& level, AboutGame& a
 	Enemies enemies;
 	RecordsBox rBox;
 	Result result;
-	//AboutGame aboutGame;
 
 	InitMap(map);
 	InitPlayer(player);
@@ -87,8 +85,8 @@ void game(SDL_Window* window, SDL_Renderer* ren, Difficulty& level, AboutGame& a
 			quit = true;
 			RenderAboutGame(ren, aboutGame);
 			aboutGame.flag = false;
+			SDL_Delay(4000);
 		}
-
 		if (UpdatePlayer(player, enemies, map, rBox))
 		{
 			quit = true;
@@ -108,7 +106,6 @@ void game(SDL_Window* window, SDL_Renderer* ren, Difficulty& level, AboutGame& a
 
 			SDL_RenderPresent(ren);
 		}
-
 		if (CheckWin(rBox) && !quit)
 		{
 			quit = true;
@@ -116,5 +113,5 @@ void game(SDL_Window* window, SDL_Renderer* ren, Difficulty& level, AboutGame& a
 		}
 		SDL_Delay(90);
 	}
-	DestructGame(level, rBox, result);
+	DestructGame(level, rBox, result, aboutGame);
 }

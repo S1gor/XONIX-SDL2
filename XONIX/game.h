@@ -141,6 +141,6 @@ void UpdateText(RecordsBox& rBox, int counterNew);
 
 bool CheckWin(RecordsBox& rBox);
 
-void DestructGame(Difficulty& level, RecordsBox& rBox, Result& result);
+void DestructGame(Difficulty& level, RecordsBox& rBox, Result& result, AboutGame& aboutGame);
 
 #endif

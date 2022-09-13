@@ -71,9 +71,9 @@ void InitWinLose(SDL_Renderer* ren, Result& result)
 void InitAboutGame(SDL_Renderer* ren, AboutGame& aboutGame)
 {
 	InitFont(aboutGame.font);
-	SDL_Color color = { 0, 255, 0, 255 };
-	char text[] = "Что-то тут должно буть интересное о игре";
-	aboutGame.surface = TTF_RenderUTF8_Blended(aboutGame.font, text, color);
+	SDL_Color color = { 0, 0, 0, 255 };
+	char text[] = "Эта игра была создана S1gor для курса программирования. Игра является курсовым проектом во втором полугодии.";
+	aboutGame.surface = TTF_RenderUTF8_Blended_Wrapped(aboutGame.font, text, color, 1100);
 }
 
 void RenderMap(SDL_Renderer* ren, Map& map, Difficulty& level)
@@ -200,15 +200,18 @@ void RenderWinLose(SDL_Renderer* ren, Result& result, const char* win_lose)
 
 void RenderAboutGame(SDL_Renderer* ren, AboutGame& aboutGame)
 {
-	SDL_Rect rect = { WIN_WIDTH / 2 - 250, WIN_HEIGHT / 2 - 100, 500, 125 };
-	SDL_Rect rectFull = { 0,0,WIN_WIDTH, WIN_HEIGHT };
-	SDL_SetRenderDrawColor(ren, 255, 0, 0, 255);
+	SDL_Rect rect = { WIN_WIDTH / 2 - 320, WIN_HEIGHT / 2 - 200, 700, 300 };
+	SDL_Rect rectFull = { 0, 0, WIN_WIDTH, WIN_HEIGHT };
+
+	SDL_RenderClear(ren);
+	SDL_SetRenderDrawColor(ren, 128, 128, 192, 255);
 	SDL_RenderFillRect(ren, &rectFull);
+
 	aboutGame.texture = SDL_CreateTextureFromSurface(ren, aboutGame.surface);
 	SDL_RenderCopy(ren, aboutGame.texture, NULL, &rect);
+
 	SDL_DestroyTexture(aboutGame.texture);
 	SDL_RenderPresent(ren);
-	SDL_Delay(1000);
 }
 
 bool UpdatePlayer(Player& player, Enemies& enemies, Map& map, RecordsBox& rBox)
@@ -439,12 +442,13 @@ bool CheckWin(RecordsBox& rBox)
 	return rBox.percent >= 80;
 }
 
-void DestructGame(Difficulty& level, RecordsBox& rBox, Result& result)
+void DestructGame(Difficulty& level, RecordsBox& rBox, Result& result, AboutGame& aboutGame)
 {
 	TTF_CloseFont(rBox.font);
 	TTF_CloseFont(result.font);
 	SDL_FreeSurface(result.surf_win);
 	SDL_FreeSurface(result.surf_lose);
+	SDL_FreeSurface(aboutGame.surface);
 
 	int rec_easy, rec_medium, rec_hard;
 
