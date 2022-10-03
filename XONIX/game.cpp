@@ -396,10 +396,9 @@ int UpdateMap(Map& map, Enemies& enemies)
 		{
 			if (map.blocks[i][j].status == typeBlock_nondraw)
 				map.blocks[i][j].status = typeBlock_noncaptured;
-			else
+			else if (map.blocks[i][j].status == typeBlock_noncaptured || map.blocks[i][j].status == typeBlock_processed)
 			{
-				if (map.blocks[i][j].status == typeBlock_noncaptured || map.blocks[i][j].status == typeBlock_processed)
-					counter++;
+				counter++;
 				map.blocks[i][j].status = typeBlock_captured;
 			}
 		}
@@ -446,6 +445,7 @@ void DestructGame(Difficulty& level, RecordsBox& rBox, Result& result, AboutGame
 {
 	TTF_CloseFont(rBox.font);
 	TTF_CloseFont(result.font);
+	TTF_CloseFont(aboutGame.font);
 	SDL_FreeSurface(result.surf_win);
 	SDL_FreeSurface(result.surf_lose);
 	SDL_FreeSurface(aboutGame.surface);
